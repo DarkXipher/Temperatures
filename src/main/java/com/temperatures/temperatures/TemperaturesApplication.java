@@ -19,10 +19,12 @@ public class TemperaturesApplication {
 	@Bean
 	CommandLineRunner init(TemperatureRepository temperatureRepository) {
 		return (evt) -> Arrays.asList(
-				"34C,24C,15F,98F,34F".split(","))
+				"34,24,15,98,34".split(","))
 				.forEach(
 						a -> {
-							temperatureRepository.save(new Temperature(a, new Date(2018,04,01), new Date(2018,04,01)));
+							temperatureRepository.save(new Temperature(a, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())));
+							temperatureRepository.save(new Temperature(a, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "Farenheit"));
+							temperatureRepository.save(new Temperature(a, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), "Kelvin"));
 						});
 	}
 }

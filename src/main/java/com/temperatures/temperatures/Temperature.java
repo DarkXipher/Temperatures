@@ -1,10 +1,12 @@
 package com.temperatures.temperatures;
 
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Temperature
@@ -15,8 +17,12 @@ public class Temperature
 
     private String temperature;
     
+    private String scale = "Celsius";
+    
+    @JsonFormat(pattern="EEE MMM dd hh:mm:ss aa zzz yyyy")
     private Date createDate;
     
+    @JsonFormat(pattern="EEE MMM dd hh:mm:ss aa zzz yyyy")
     private Date updateDate;
 
     @SuppressWarnings("unused")
@@ -27,6 +33,21 @@ public class Temperature
         this.temperature = temp;
         this.createDate = create;
         this.updateDate = update;
+    }
+    
+    public Temperature(final String temp, final Date create, final Date update, final String scale) {
+    	this.temperature = temp;
+        this.createDate = create;
+        this.updateDate = update;
+        this.scale = scale;
+    }
+    
+    public Temperature(final Long id, final String temp, final Date create, final Date update, final String scale) {
+    	this.id = id;
+    	this.temperature = temp;
+        this.createDate = create;
+        this.updateDate = update;
+        this.scale = scale;
     }
 
     /*
@@ -43,6 +64,11 @@ public class Temperature
 		return temperature;
 	}
 
+	public String getScale()
+	{
+		return scale;
+	}
+	
 	public Date getCreateDate()
 	{
 		return createDate;

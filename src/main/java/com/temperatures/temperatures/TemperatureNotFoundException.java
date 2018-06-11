@@ -8,7 +8,7 @@ public class TemperatureNotFoundException extends RuntimeException
 {
 	private static final long serialVersionUID = -2529054947024253633L;
 
-	public TemperatureNotFoundException(String temp) {
-		super("Could not find temperature '" + "'.");
+	public TemperatureNotFoundException(String tempId) {
+		super("Could not find temperature ID '" +tempId+ "'.");
 	}
 }

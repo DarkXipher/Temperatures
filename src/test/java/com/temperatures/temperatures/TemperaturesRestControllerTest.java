@@ -8,12 +8,15 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,8 @@ public class TemperaturesRestControllerTest
 
     private List<Temperature> tempList = new ArrayList<Temperature>();
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss aa zzz yyyy");
+    
     @Autowired
     private TemperatureRepository temperatureRepository;
 
@@ -66,20 +71,32 @@ public class TemperaturesRestControllerTest
                 this.mappingJackson2HttpMessageConverter);
     }
 
+    @BeforeClass
+    public static void setupClass() throws Exception {
+    	sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+    
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
 
         this.temperatureRepository.deleteAllInBatch();
 
-        //this.temperature = temperatureRepository.save(new Temperature("60F", new Date(2018,6,10), new Date(2018,6,10)));
-        this.tempList.add(temperatureRepository.save(new Temperature(temp, new Date(2018,6,10), new Date(2018,6,10))));
-        this.tempList.add(temperatureRepository.save(new Temperature("60F", new Date(2018,6,10), new Date(2018,6,10))));
+        this.tempList.add(temperatureRepository.save(new Temperature(temp, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()))));
+        this.tempList.add(temperatureRepository.save(new Temperature("60F", new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()))));
+        this.temperature = temperatureRepository.save(new Temperature("24", new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())));
     }
-
+    
     @Test
-    public void tempNotFound() throws Exception {
-        mockMvc.perform(put("/")
+    public void tempNotFoundPut() throws Exception {
+        mockMvc.perform(put("/99999")
+                .content(this.json(new Temperature(null, null, null)))
+                .contentType(contentType))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    public void tempNotFoundDelete() throws Exception {
+        mockMvc.perform(delete("/99999")
                 .content(this.json(new Temperature(null, null, null)))
                 .contentType(contentType))
                 .andExpect(status().isNotFound());
@@ -101,19 +118,19 @@ public class TemperaturesRestControllerTest
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].id", is(this.tempList.get(0).getId().intValue())))
-                .andExpect(jsonPath("$[0].createDate", is(this.tempList.get(0).getCreateDate().toString())))
-                .andExpect(jsonPath("$[0].updateDate", is(this.tempList.get(0).getUpdateDate().toString())))
+                .andExpect(jsonPath("$[0].createDate", is(sdf.format(this.tempList.get(0).getCreateDate()))))
+                .andExpect(jsonPath("$[0].updateDate", is(sdf.format(this.tempList.get(0).getUpdateDate()))))
                 .andExpect(jsonPath("$[1].id", is(this.tempList.get(1).getId().intValue())))
-                .andExpect(jsonPath("$[1].createDate", is(this.tempList.get(0).getCreateDate().toString())))
-                .andExpect(jsonPath("$[1].updateDate", is(this.tempList.get(0).getUpdateDate().toString())));
+                .andExpect(jsonPath("$[1].createDate", is(sdf.format(this.tempList.get(0).getCreateDate()))))
+                .andExpect(jsonPath("$[1].updateDate", is(sdf.format(this.tempList.get(0).getUpdateDate()))));
     }
 
     @Test
     public void createTemperature() throws Exception {
         String temperatureJson = json(new Temperature(
-                this.temp, new Date(2018,6,10), new Date(2018,6,10)));
+                this.temp, new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())));
 
         this.mockMvc.perform(post("/")
                 .contentType(contentType)
@@ -124,13 +141,26 @@ public class TemperaturesRestControllerTest
     @Test
     public void replaceTemperature() throws Exception {
         String temperatureJson = json(new Temperature(
-                this.temp, new Date(2018,6,10), new Date(2018,6,10)));
+                this.temp, new Date(System.currentTimeMillis()-(10*60*60*60*24)), new Date(System.currentTimeMillis()-(10*60*60*60*24))));
 
-        this.mockMvc.perform(post("/")
+        this.mockMvc.perform(put("/" + this.temperature.getId().intValue())
                 .contentType(contentType)
                 .content(temperatureJson))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
+    /**
+     * ID is auto generated and thus hard to determine which ID needs to be removed.
+     *
+     * @throws Exception
+     */
+    /*
+    @Test
+    public void deleteTemperature() throws Exception {
+        this.mockMvc.perform(delete("/1")
+                .contentType(contentType))
+                .andExpect(status().isNoContent());
+    }
+    */
 
     protected String json(Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
