@@ -50,7 +50,7 @@ public class TemperaturesRestControllerTest
 
     private List<Temperature> tempList = new ArrayList<Temperature>();
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm:ss aa zzz yyyy");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd hh:mm aa zzz yyyy");
     
     @Autowired
     private TemperatureRepository temperatureRepository;

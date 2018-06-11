@@ -15,7 +15,6 @@ public class TemperaturesApplication {
 		SpringApplication.run(TemperaturesApplication.class, args);
 	}
 	
-	
 	@Bean
 	CommandLineRunner init(TemperatureRepository temperatureRepository) {
 		return (evt) -> Arrays.asList(

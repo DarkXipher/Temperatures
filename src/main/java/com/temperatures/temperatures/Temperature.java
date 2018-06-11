@@ -19,10 +19,10 @@ public class Temperature
     
     private String scale = "Celsius";
     
-    @JsonFormat(pattern="EEE MMM dd hh:mm:ss aa zzz yyyy")
+    @JsonFormat(pattern="EEE MMM dd hh:mm aa zzz yyyy")
     private Date createDate;
     
-    @JsonFormat(pattern="EEE MMM dd hh:mm:ss aa zzz yyyy")
+    @JsonFormat(pattern="EEE MMM dd hh:mm aa zzz yyyy")
     private Date updateDate;
 
     @SuppressWarnings("unused")
